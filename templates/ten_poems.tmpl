@@ -1,0 +1,26 @@
+{{ block "ten_poems" . }}
+{{$length := len .}}
+{{range $i, $line := . }}
+
+{{ if eq $i (sub $length 1) }}
+<div hx-get="/mc" hx-trigger="revealed" hx-swap="afterend" class="box" style="background-color: rgb({{index .Color 0}},{{index .Color 1}},{{index .Color 2}});">
+
+    {{ else }}
+
+      <div class="box" style="background-color: rgb({{index .Color 0}},{{index .Color 1}},{{index .Color 2}});">
+
+    {{end}}
+
+    <ul onclick="showBar('{{ .CodeString }}')">
+      {{ range .Lines }}
+        <li>{{.}}</li>
+      {{ end }}
+    </ul>
+    <div class="info" style="display: none;" id="{{ .CodeString }}">
+    <a href="/poem/{{.CodeString}}">permalink</a>
+            
+    </div>
+
+    </div>
+  {{end}}
+{{ end }}

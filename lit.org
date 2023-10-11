@@ -1,0 +1,79 @@
+#+TITLE: "Randomly Generated Poetry"
+
+* Docker
+** Dockerfile
+
+#+BEGIN_SRC dockerfile :tangle Dockerfile
+FROM golang:alpine AS builder
+
+WORKDIR /app
+COPY . .
+RUN go build -o poetry
+
+FROM alpine:latest
+WORKDIR /root/
+COPY --from=builder /app/poetry .
+EXPOSE 8080
+CMD ["./poetry"]
+#+END_SRC
+
+** Commands
+
+Build the docker image with the name poetry-app in the current directory.
+
+#+BEGIN_SRC 
+docker build -t poetry-app .
+#+END_SRC
+
+Run the container, a web server on 8080 with the name poetry-container.
+
+#+BEGIN_SRC sh
+docker run -d -p 8080:8080 --name poetry-container poetry-app
+#+END_SRC
+
+Test the output of the default route.
+#+BEGIN_SRC sh
+curl http://localhost:8080
+#+END_SRC
+
+
+
+* main.go
+
+#+BEGIN_SRC go :tangle main.go
+package main
+
+import (
+	"os"
+	"fmt"
+	"net/http"
+//	"html/template"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"errors"
+)
+
+func helloworld(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Hello World! This is Real!")
+}
+
+func main() {
+	var err error
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+
+	r.Get("/", helloworld)
+
+	err = http.ListenAndServe(":8080", r)
+
+	if errors.Is(err, http.ErrServerClosed) {
+		fmt.Printf("server closed\n")
+	} else if err != nil {
+		fmt.Printf("error starting server: %s\n", err)
+		os.Exit(1)
+	}
+	
+}
+#+END_SRC
+
+

@@ -1,0 +1,28 @@
+
+{{define "list_all_lines" }}
+<h2 style="font-family: 'Special Elite', cursive;align-items: center;">List of all lines</h2>
+<span style="text-align: right;"><a href="/">⬅back to index</a></span>
+<br />
+<br />
+<table>
+    <tr>
+	<th>#</th>
+	<th>English</th>
+	<th>Chinese</th>
+    </tr>
+    
+    
+    {{ range . }}
+
+    <tr>
+        <td>{{.id}}</td>
+        <td style="font-family: 'Special Elite', cursive;">{{.eng}}</td>
+        <td>{{.cn}}</td>
+    </tr>
+    {{ end }}
+
+</table>
+
+
+
+{{ end }}
