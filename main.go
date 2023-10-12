@@ -1,6 +1,8 @@
 package main
 
 import (
+	"embed"
+	"errors"
 	"fmt"
 	"html/template"
 	"log"
@@ -9,8 +11,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"embed"
-	"errors"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
