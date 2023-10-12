@@ -1,5 +1,7 @@
 package main
 
+//------------------------------------------------------------------------------
+
 import (
 	"embed"
 	"errors"
@@ -17,40 +19,46 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var Templates *template.Template
-var randomColor color
-// Embed all .tmpl files from the templates directory
+//------------------------------------------------------------------------------
+
 //go:embed templates/*.tmpl
 var templateFS embed.FS
+
 //go:embed static/*
 var staticFS embed.FS
+
+var Templates *template.Template
+var randomColor color
+
+// ------------------------------------------------------------------------------
+
 type color struct {
 	R int8
 	G int8
 	B int8
 }
 
+// Next returns the color slightly shifted up
 func (c *color) Next() {
 	c.R = c.R + int8(rand.Intn(100))
 	c.G = c.G + int8(rand.Intn(100))
 	c.B = c.B + int8(rand.Intn(100))
-
 
 }
 
 type poem struct {
 	EnglishLines []string
 	ChineseLines []string
-	Color color
-	Code []int
-	CodeString string
+	Color        color
+	Code         []int
+	CodeString   string
 }
 
-
+// ------------------------------------------------------------------------------
 // New creates a poem from agruments or in absence a new random poem
 func (p *poem) New(c ...int) error {
 	var code []int
-	
+
 	if len(c) > 0 {
 		code = c
 	} else {
@@ -58,16 +66,14 @@ func (p *poem) New(c ...int) error {
 	}
 
 	for _, num := range code {
-		p.EnglishLines = append(p.EnglishLines, embeddedTable[num].English)
-		p.ChineseLines = append(p.ChineseLines, embeddedTable[num].Chinese)
-		p.Code = append(p.Code, embeddedTable[num].ID)
-	
-	}
-	p.CodeString = fmt.Sprintf("%v-%v-%v-%v", code[0], code[1], code[2], code[3])
+		p.EnglishLines = append(p.EnglishLines, embeddedTable[num - 1].English)
+		p.ChineseLines = append(p.ChineseLines, embeddedTable[num - 1].Chinese)
+		p.Code = append(p.Code, embeddedTable[num - 1].ID)
 
-	// TODO - get better colors generated
-	
-	p.Color.Next() 
+	}
+
+	p.CodeString = fmt.Sprintf("%v-%v-%v-%v", code[0], code[1], code[2], code[3])
+	p.Color.Next()
 
 	return nil
 }
@@ -83,28 +89,25 @@ func about(w http.ResponseWriter, r *http.Request) {
 	err := Templates.ExecuteTemplate(w, "about", nil)
 	if err != nil {
 		http.Error(w, "Error Generating Index", http.StatusInternalServerError)
-	
+
 	}
 }
-
 
 func listAll(w http.ResponseWriter, r *http.Request) {
 	err := Templates.ExecuteTemplate(w, "list_all_lines", embeddedTable)
 	if err != nil {
 		http.Error(w, "Error Generating Index", http.StatusInternalServerError)
-	
+
 	}
 }
 
 func FourRandomNumbers() []int {
 	var nums []int
 	for i := 0; i < 4; i++ {
-		nums = append(nums, rand.Intn(1000))
+		nums = append(nums, rand.Intn(999))
 	}
 	return nums
 }
-
-
 
 func onePoem(w http.ResponseWriter, r *http.Request) {
 	c := chi.URLParam(r, "code")
@@ -124,28 +127,23 @@ func onePoem(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-
 	err := Templates.ExecuteTemplate(w, "one_poem", p)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		log.Printf("Error executing template: %v", err)
 	}
-	//Templates.ExecuteTemplate(w, "ten_poems", pl)
 }
-	
-		
-
 
 func tenPoems(w http.ResponseWriter, r *http.Request) {
 	var pl []poem
-	for i := 0; i < 10; i++  {
+	for i := 0; i < 10; i++ {
 		var p poem
 		if err := p.New(); err != nil {
 			log.Fatal(err)
 		}
 		pl = append(pl, p)
 	}
-	
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	err := Templates.ExecuteTemplate(w, "ten_poems", pl)
@@ -153,9 +151,8 @@ func tenPoems(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		log.Printf("Error executing template: %v", err)
 	}
-	//Templates.ExecuteTemplate(w, "ten_poems", pl)
 }
-
+//------------------------------------------------------------------------------
 func main() {
 	var err error
 	funcMap := template.FuncMap{
@@ -166,25 +163,22 @@ func main() {
 
 	Templates, err = template.New("").Funcs(funcMap).ParseFS(templateFS, "templates/*.tmpl")
 
-	//	Templates, err = template.ParseGlob("templates.tmpl")
 	if err != nil {
 		fmt.Printf("Error parsing templates: %v", err)
 	}
-	
-
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
 	fileServer := http.FileServer(http.FS(staticFS))
-	
+
 	r.Handle("/static/*", http.StripPrefix("", fileServer))
 	r.Get("/poem/{code}", onePoem)
 	r.Get("/about", about)
 	r.Get("/list", listAll)
 	r.Get("/mc", tenPoems)
 	r.Get("/", indexHandler)
-	
+
 	err = http.ListenAndServe(":8080", r)
 	if err != nil {
 		fmt.Println("Farts")
@@ -195,5 +189,5 @@ func main() {
 		fmt.Printf("error starting server: %s\n", err)
 		os.Exit(1)
 	}
-	
+
 }
