@@ -1,5 +1,5 @@
 
-{{define "base"}}
+{{block "one_poem" . }}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -17,21 +17,22 @@
     </head>
 
     <body>
-	<div class="topinfo" style="font-size:x-large">
-	    <h1>Random "Poetry" Generator</h1>
-	    <p>Click on a poem for a permalink.</p>
-	    <div class="container">
-		<a href="/about"><h4 class="item">About</h4></a>
+    <div class="box" style="background-color: rgb({{.Color.R}},{{.Color.G}},{{.Color.B}});">
 
-		<a href="/list"><h4 class="item">All Lines</h4></a>
-	    </div>
-	    <div id="about" style="display: none;">Some Text</div>
-	</div>
-	<div class="main" hx-get="/mc" hx-trigger="load">
-	</div>  
-	
+
+    <ul onclick="showBar('{{ .CodeString }}')">
+      {{ range .EnglishLines }}
+        <li>{{.}}</li>
+      {{ end }}
+    </ul>
+    <div class="info" style="display: none;" id="{{ .CodeString }}">
+	<a href="/poem/{{.CodeString}}">permalink</a>
+        
+    </div>
+
+    </div>
+    
     </body>
 
-    
 </html>
 {{end}}

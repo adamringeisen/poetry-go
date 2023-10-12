@@ -1,6 +1,27 @@
 
 {{define "list_all_lines" }}
-<h2 style="font-family: 'Special Elite', cursive;align-items: center;">List of all lines</h2>
+
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>✌️poetry✌️</title>
+	<script src="https://unpkg.com/htmx.org@1.6.1"></script>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="/static/style.css">
+	<script type="text/javascript" src="/static/scripts.js"></script>
+    </head>
+
+    <body>
+	<div>
+	 
+
+	    <h2 style="font-family: 'Special Elite', cursive;align-items: center;">List of all lines</h2>
 <span style="text-align: right;"><a href="/">⬅back to index</a></span>
 <br />
 <br />
@@ -15,14 +36,16 @@
     {{ range . }}
 
     <tr>
-        <td>{{.id}}</td>
-        <td style="font-family: 'Special Elite', cursive;">{{.eng}}</td>
-        <td>{{.cn}}</td>
+        <td>{{.ID}}</td>
+        <td style="font-family: 'Special Elite', cursive;">{{.English}}</td>
+        <td>{{.Chinese}}</td>
     </tr>
     {{ end }}
 
 </table>
 
-
+	</div>
+    </body>
+</html>
 
 {{ end }}

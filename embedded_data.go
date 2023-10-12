@@ -1,6 +1,13 @@
 package main
 
-var embeddedTable = []DBLine{
+type line struct {
+	ID int
+	English string
+	Chinese string
+}
+
+
+var embeddedTable = []line{
 {ID: 1, English: "I see.", Chinese: "我明白了。"},
 {ID: 2, English: "I quit!", Chinese: "我不幹了!"},
 {ID: 3, English: "Let go!", Chinese: "放手!"},

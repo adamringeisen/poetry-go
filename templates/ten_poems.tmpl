@@ -3,16 +3,16 @@
 {{range $i, $line := . }}
 
 {{ if eq $i (sub $length 1) }}
-<div hx-get="/mc" hx-trigger="revealed" hx-swap="afterend" class="box" style="background-color: rgb({{index .Color 0}},{{index .Color 1}},{{index .Color 2}});">
+<div hx-get="/mc" hx-trigger="revealed" hx-swap="afterend" class="box" style="background-color: rgb({{.Color.R}},{{.Color.G}},{{.Color.B}});">
 
     {{ else }}
 
-      <div class="box" style="background-color: rgb({{index .Color 0}},{{index .Color 1}},{{index .Color 2}});">
+    <div class="box" style="background-color: rgb({{.Color.R}},{{.Color.G}},{{.Color.B}});">
 
     {{end}}
 
     <ul onclick="showBar('{{ .CodeString }}')">
-      {{ range .Lines }}
+      {{ range .EnglishLines }}
         <li>{{.}}</li>
       {{ end }}
     </ul>
