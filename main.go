@@ -9,7 +9,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
+	"embed"
 	"errors"
 
 	"github.com/go-chi/chi/v5"
@@ -19,8 +19,11 @@ import (
 
 var Templates *template.Template
 var randomColor color
-
-
+// Embed all .tmpl files from the templates directory
+//go:embed templates/*.tmpl
+var templateFS embed.FS
+//go:embed static/*
+var staticFS embed.FS
 type color struct {
 	R int8
 	G int8
@@ -161,7 +164,7 @@ func main() {
 		},
 	}
 
-	Templates, err = template.New("").Funcs(funcMap).ParseGlob("templates/*.tmpl")
+	Templates, err = template.New("").Funcs(funcMap).ParseFS(templateFS, "templates/*.tmpl")
 
 	//	Templates, err = template.ParseGlob("templates.tmpl")
 	if err != nil {
@@ -173,9 +176,9 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
-	fileServer := http.FileServer(http.Dir("static"))
+	fileServer := http.FileServer(http.FS(staticFS))
 	
-	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
+	r.Handle("/static/*", http.StripPrefix("", fileServer))
 	r.Get("/poem/{code}", onePoem)
 	r.Get("/about", about)
 	r.Get("/list", listAll)
