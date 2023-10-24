@@ -16,7 +16,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 //------------------------------------------------------------------------------
@@ -123,7 +122,9 @@ func onePoem(w http.ResponseWriter, r *http.Request) {
 	}
 	var p poem
 	if err := p.New(ints...); err != nil {
-		log.Fatal(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		log.Printf("Error executing template: %v", err)
+
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -139,7 +140,8 @@ func tenPoems(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < 10; i++ {
 		var p poem
 		if err := p.New(); err != nil {
-			log.Fatal(err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			log.Printf("Error executing template: %v", err)	
 		}
 		pl = append(pl, p)
 	}
@@ -152,6 +154,8 @@ func tenPoems(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error executing template: %v", err)
 	}
 }
+
+
 //------------------------------------------------------------------------------
 func main() {
 	var err error
