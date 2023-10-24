@@ -21,7 +21,7 @@ CMD ["./poetry"]
 
 Build the docker image with the name poetry-app in the current directory.
 
-#+BEGIN_SRC 
+#+BEGIN_SRC sh
 docker build -t poetry-app .
 #+END_SRC
 
@@ -35,45 +35,4 @@ Test the output of the default route.
 #+BEGIN_SRC sh
 curl http://localhost:8080
 #+END_SRC
-
-
-
-* main.go
-
-#+BEGIN_SRC go :tangle main.go
-package main
-
-import (
-	"os"
-	"fmt"
-	"net/http"
-//	"html/template"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"errors"
-)
-
-func helloworld(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello World! This is Real!")
-}
-
-func main() {
-	var err error
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-
-	r.Get("/", helloworld)
-
-	err = http.ListenAndServe(":8080", r)
-
-	if errors.Is(err, http.ErrServerClosed) {
-		fmt.Printf("server closed\n")
-	} else if err != nil {
-		fmt.Printf("error starting server: %s\n", err)
-		os.Exit(1)
-	}
-	
-}
-#+END_SRC
-
 
