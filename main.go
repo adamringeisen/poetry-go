@@ -27,21 +27,22 @@ var templateFS embed.FS
 var staticFS embed.FS
 
 var Templates *template.Template
-var randomColor color
+
+var randomColor = color{R: 0, G: 0, B: 0}
 
 // ------------------------------------------------------------------------------
 
 type color struct {
-	R int8
-	G int8
-	B int8
+	R uint8
+	G uint8
+	B uint8
 }
 
 // Next returns the color slightly shifted up
 func (c *color) Next() {
-	c.R = c.R + int8(rand.Intn(100))
-	c.G = c.G + int8(rand.Intn(100))
-	c.B = c.B + int8(rand.Intn(100))
+	c.R = c.R + uint8(rand.Intn(6)+5)
+	c.G = c.G + uint8(rand.Intn(6)+5)
+	c.B = c.B + uint8(rand.Intn(6)+5)
 
 }
 
@@ -72,7 +73,8 @@ func (p *poem) New(c ...int) error {
 	}
 
 	p.CodeString = fmt.Sprintf("%v-%v-%v-%v", code[0], code[1], code[2], code[3])
-	p.Color.Next()
+	p.Color = randomColor
+	randomColor.Next()
 
 	return nil
 }
@@ -101,9 +103,10 @@ func listAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func FourRandomNumbers() []int {
+	max := len(embeddedTable)
 	var nums []int
 	for i := 0; i < 4; i++ {
-		nums = append(nums, rand.Intn(999))
+		nums = append(nums, rand.Intn(max)+1)
 	}
 	return nums
 }
@@ -122,7 +125,7 @@ func onePoem(w http.ResponseWriter, r *http.Request) {
 	}
 	var p poem
 	if err := p.New(ints...); err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error", http.StatusBadRequest)
 		log.Printf("Error executing template: %v", err)
 
 	}
@@ -141,7 +144,6 @@ func tenPoems(w http.ResponseWriter, r *http.Request) {
 		var p poem
 		if err := p.New(); err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			log.Printf("Error executing template: %v", err)	
 		}
 		pl = append(pl, p)
 	}
@@ -183,9 +185,10 @@ func main() {
 	r.Get("/mc", tenPoems)
 	r.Get("/", indexHandler)
 
-	err = http.ListenAndServe(":8080", r)
+	err = http.ListenAndServe(":8189", r)
 	if err != nil {
-		fmt.Println("Farts")
+			log.Fatal(err)	
+
 	}
 	if errors.Is(err, http.ErrServerClosed) {
 		fmt.Printf("server closed\n")
